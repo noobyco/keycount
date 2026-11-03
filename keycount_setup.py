@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install Keycount's user binding and persist its first-run placement."""
+"""Install Keycount's user binding and persist its unified configuration."""
 
 import argparse
 import json
@@ -71,7 +71,17 @@ def remove_binding(home):
 def save_placement(home, placement):
     if placement not in POSITIONS:
         raise ValueError(f"invalid placement: {placement}")
-    atomic_write(config_path(home), json.dumps({"position": placement}, indent=2) + "\n")
+    path = config_path(home)
+    config = {}
+    if path.exists():
+        try:
+            loaded = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                config = loaded
+        except (json.JSONDecodeError, OSError):
+            pass
+    config["position"] = placement
+    atomic_write(path, json.dumps(config, indent=2) + "\n")
 
 
 def main():

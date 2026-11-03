@@ -32,10 +32,15 @@ The installer never rewrites or removes unrelated keybindings. The binding is de
 
 ## Placement
 
-On the first enabled session, Keycount opens a theme-aware placement picker. Top Center is first and selected by default. The chosen position is saved in `~/.config/omarchy/keycount.json`.
+On the first enabled session, Keycount opens a theme-aware placement picker. Top Center is first and selected by default. The chosen position and typing statistics are saved together in `~/.config/omarchy/keycount.json`.
 
 ```json
-{"position": "top-center"}
+{
+  "position": "top-center",
+  "bestSpeed": 72,
+  "bestDate": "2026-11-03",
+  "streak": 1
+}
 ```
 
 Supported values are `center`, `left-center`, `right-center`, `top-center`, `bottom-center`, `top-right-edge`, `top-left-edge`, `bottom-right-edge`, and `bottom-left-edge`.
