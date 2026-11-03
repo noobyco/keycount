@@ -13,7 +13,11 @@ assert.equal(model.speedFor(100, 60000), 100)
 assert.equal(model.qualifies(1, 1000), false)
 assert.equal(model.qualifies(2, 999), false)
 assert.equal(model.qualifies(2, 1000), true)
-assert.equal(model.positionOptions()[0].value, 'top-center')
+assert.deepEqual(model.positionOptions().map(function (option) { return option.value }), [
+  'top-left-edge', 'top-center', 'top-right-edge',
+  'left-center', 'center', 'right-center',
+  'bottom-left-edge', 'bottom-center', 'bottom-right-edge'
+])
 
 const KEY = {
   a: 38, b: 56, c: 54, d: 40, e: 26, h: 43, i: 31, l: 46, n: 57, o: 32, r: 27, t: 28, w: 25,
