@@ -14,11 +14,19 @@ omarchy plugin add https://github.com/noobyco/keycount.git --enable
 
 The helper reads keyboard press events from `/dev/input/by-path/*-event-kbd`. The user running Omarchy must have read access to those devices, usually through the `input` group. This is the plugin's only privileged boundary. It does not send, store, or transmit key content. It records only press timing and count.
 
-Double-tap `K` to show or hide the overlay. This is enabled by default and does not consume either `K` press, so normal typing continues to work.
+When the plugin first starts, it adds the following tagged entry to `~/.config/hypr/bindings.lua` if it is not already present:
+
+```lua
+o.bind("SUPER + SHIFT + K", "Toggle Keycount", {
+  panel = "io.github.noobyco.keycount"
+})
+```
+
+The installer never rewrites or removes unrelated keybindings. The binding is detected by plugin ID, so a manually-created equivalent binding is not duplicated.
 
 ## Placement
 
-Create `~/.config/omarchy/keycount.json` to choose a position. The default is `top-center`.
+On the first enabled session, Keycount opens a theme-aware placement picker. Top Center is first and selected by default. The chosen position is saved in `~/.config/omarchy/keycount.json`.
 
 ```json
 {"position": "top-center"}
@@ -40,5 +48,6 @@ qmllint -I "$OMARCHY_PATH/shell" Keycount.qml
 ## Remove
 
 ```sh
+python3 ~/.config/omarchy/plugins/io.github.noobyco.keycount/keycount_setup.py --remove-binding
 omarchy plugin remove io.github.noobyco.keycount
 ```
