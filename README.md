@@ -12,13 +12,9 @@ Install the public repository with Omarchy.
 omarchy plugin add https://github.com/noobyco/keycount.git --enable
 ```
 
-During installation, Omarchy displays the manual setup required for typing measurement. It does not run the command automatically. The command is:
+Keycount uses Hyprland's Lua keyboard event callback. Installation writes a small user-owned module at `~/.config/hypr/keycount.lua` and reloads Hyprland. It does not read `/dev/input`, add the user to a Linux group, require a password, or require a logout.
 
-```sh
-sudo usermod -aG input "$USER"
-```
-
-It adds the current user to Linux's `input` group, granting access to raw keyboard press events from `/dev/input/by-path/*-event-kbd`. That access is required to measure typing speed across applications. The `input` group can read keyboard events, so run it only if you trust Keycount. Keycount records only press timing and count; it does not save or transmit typed text. Log out and sign in again, or reboot, before opening Keycount—new group membership applies only to a new login session.
+Speed is the number of words typed during the current run, divided by the minutes in that run. A word is a run of letters or digits, so `don't` and `well-known` each count as one. Space, Enter, and punctuation separate words. Shift, Ctrl, Alt, Super, arrows, and shortcuts do not. The key labels follow the English (US) layout.
 
 During installation, Omarchy adds and reloads the following shortcut in `~/.config/hypr/bindings.lua` if no equivalent Keycount panel binding already exists:
 
@@ -59,6 +55,6 @@ qmllint -I "$OMARCHY_PATH/shell" Keycount.qml
 ## Remove
 
 ```sh
-python3 ~/.config/omarchy/plugins/io.github.noobyco.keycount/keycount_setup.py --remove-binding
+python3 ~/.config/omarchy/plugins/io.github.noobyco.keycount/keycount_setup.py --remove-binding --remove-hyprland-bridge
 omarchy plugin remove io.github.noobyco.keycount
 ```

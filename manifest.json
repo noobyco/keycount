@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.noobyco.keycount",
   "name": "Keycount",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Shekh Muhammad Moinuddin",
   "license": "MIT",
   "description": "A theme-aware typing speed overlay",
@@ -15,16 +15,5 @@
       "description": "Toggle Keycount",
       "panel": "io.github.noobyco.keycount"
     }
-  ],
-  "manualSetup": {
-    "title": "Allow keyboard-event access",
-    "description": "Keycount needs raw keyboard-event access to measure typing speed across applications. The input group can read keyboard events, so only run this for a plugin you trust. Keycount uses event timing and press count only; it does not save or send typed text.",
-    "commands": [
-      {
-        "command": "sudo usermod -aG input \"$USER\"",
-        "description": "Adds your current user to Linux's input group, allowing Keycount to read keyboard press events from /dev/input."
-      }
-    ],
-    "restartRequired": "Log out and sign in again (or reboot) before opening Keycount; Linux applies new group membership only to a new login session."
-  }
+  ]
 }
