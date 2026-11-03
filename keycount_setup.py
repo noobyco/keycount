@@ -15,6 +15,8 @@ POSITIONS = {
 }
 BINDING_START = "-- Keycount plugin binding"
 BINDING_END = "-- End Keycount plugin binding"
+INSTALLER_BINDING_START = f"-- {PLUGIN_ID} plugin binding"
+INSTALLER_BINDING_END = f"-- End {PLUGIN_ID} plugin binding"
 BINDING = "\n".join((
     BINDING_START,
     'o.bind("SUPER + SHIFT + K", "Toggle Keycount", {',
@@ -57,11 +59,15 @@ def remove_binding(home):
     if not path.exists():
         return False
     existing = path.read_text(encoding="utf-8")
-    start = existing.find(BINDING_START)
-    end = existing.find(BINDING_END, start)
+    start_marker, end_marker = BINDING_START, BINDING_END
+    start = existing.find(start_marker)
+    if start < 0:
+        start_marker, end_marker = INSTALLER_BINDING_START, INSTALLER_BINDING_END
+        start = existing.find(start_marker)
+    end = existing.find(end_marker, start)
     if start < 0 or end < 0:
         return False
-    end += len(BINDING_END)
+    end += len(end_marker)
     before = existing[:start].rstrip()
     after = existing[end:].lstrip("\n")
     atomic_write(path, (before + "\n" if before else "") + after)

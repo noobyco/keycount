@@ -59,6 +59,25 @@ class SetupTests(unittest.TestCase):
             self.assertNotIn("Keycount plugin binding", content)
             self.assertIn('o.bind("SUPER + X", "Other", "other")', content)
 
+    def test_installer_binding_can_be_removed_without_touching_other_lines(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            home = Path(temporary)
+            bindings = home / ".config" / "hypr" / "bindings.lua"
+            bindings.parent.mkdir(parents=True)
+            bindings.write_text(
+                '-- io.github.noobyco.keycount plugin binding\n'
+                'o.bind("SUPER + SHIFT + K", "Toggle Keycount", {\n'
+                '  panel = "io.github.noobyco.keycount"\n'
+                '})\n'
+                '-- End io.github.noobyco.keycount plugin binding\n'
+                'o.bind("SUPER + X", "Other", "other")\n',
+                encoding="utf-8",
+            )
+            self.assertEqual(self.run_setup(home, "--remove-binding").returncode, 0)
+            content = bindings.read_text(encoding="utf-8")
+            self.assertNotIn("io.github.noobyco.keycount plugin binding", content)
+            self.assertIn('o.bind("SUPER + X", "Other", "other")', content)
+
 
 if __name__ == "__main__":
     unittest.main()
