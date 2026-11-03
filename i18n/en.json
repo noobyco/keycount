@@ -1,5 +1,18 @@
 {
   "best": "BEST %1 WPM",
   "bestDateStreak": "%1 · STREAK %2",
-  "noBest": "No personal best yet"
+  "noBest": "No personal best yet",
+  "setup.title": "Place Keycount",
+  "setup.body": "Choose where the typing-speed overlay should appear. Top Center is the default.",
+  "setup.save": "Save placement",
+  "setup.saveFailed": "Could not save your placement. Try again.",
+  "placement.topCenter": "Top Center",
+  "placement.center": "Center",
+  "placement.leftCenter": "Left Center",
+  "placement.rightCenter": "Right Center",
+  "placement.bottomCenter": "Bottom Center",
+  "placement.topRight": "Top Right",
+  "placement.topLeft": "Top Left",
+  "placement.bottomRight": "Bottom Right",
+  "placement.bottomLeft": "Bottom Left"
 }

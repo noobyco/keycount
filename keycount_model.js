@@ -52,6 +52,20 @@ function isPosition(name) {
     "top-right-edge", "top-left-edge", "bottom-right-edge", "bottom-left-edge"].indexOf(String(name)) !== -1
 }
 
+function positionOptions() {
+  return [
+    { value: "top-center", label: "placement.topCenter" },
+    { value: "center", label: "placement.center" },
+    { value: "left-center", label: "placement.leftCenter" },
+    { value: "right-center", label: "placement.rightCenter" },
+    { value: "bottom-center", label: "placement.bottomCenter" },
+    { value: "top-right-edge", label: "placement.topRight" },
+    { value: "top-left-edge", label: "placement.topLeft" },
+    { value: "bottom-right-edge", label: "placement.bottomRight" },
+    { value: "bottom-left-edge", label: "placement.bottomLeft" }
+  ]
+}
+
 if (typeof module !== "undefined") {
-  module.exports = { emptyState, readState, recordRun, speedFor, position, isPosition }
+  module.exports = { emptyState, readState, recordRun, speedFor, position, isPosition, positionOptions }
 }
