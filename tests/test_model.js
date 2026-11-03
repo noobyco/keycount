@@ -1,0 +1,13 @@
+const assert = require('node:assert/strict')
+const model = require('../keycount_model.js')
+
+const state = model.emptyState()
+const result = model.recordRun(state, 72, '2026-11-03')
+assert.equal(result.newBest, true)
+assert.equal(result.state.bestSpeed, 72)
+assert.equal(result.state.streak, 1)
+assert.equal(model.recordRun(result.state, 70, '2026-11-03').state.streak, 1)
+assert.equal(model.position('bottom-left-edge').horizontal, 'left')
+assert.equal(model.position('typo').vertical, 'top')
+assert.equal(Math.round(model.speedFor(100, 60000)), 20)
+console.log('keycount model checks passed')
