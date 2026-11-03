@@ -8,5 +8,16 @@
   "description": "A theme-aware typing speed overlay",
   "kinds": ["panel"],
   "keepLoaded": true,
-  "entryPoints": {"panel": "Keycount.qml"}
+  "entryPoints": {"panel": "Keycount.qml"},
+  "manualSetup": {
+    "title": "Allow keyboard-event access",
+    "description": "Keycount needs raw keyboard-event access to measure typing speed across applications. The input group can read keyboard events, so only run this for a plugin you trust. Keycount uses event timing and press count only; it does not save or send typed text.",
+    "commands": [
+      {
+        "command": "sudo usermod -aG input \"$USER\"",
+        "description": "Adds your current user to Linux's input group, allowing Keycount to read keyboard press events from /dev/input."
+      }
+    ],
+    "restartRequired": "Log out and sign in again (or reboot) before opening Keycount; Linux applies new group membership only to a new login session."
+  }
 }
