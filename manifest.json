@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.noobyco.keycount",
+  "name": "Keycount",
+  "version": "0.1.0",
+  "author": "Shekh Muhammad Moinuddin",
+  "license": "MIT",
+  "description": "A theme-aware typing speed overlay",
+  "kinds": ["panel"],
+  "keepLoaded": true,
+  "entryPoints": {"panel": "Keycount.qml"}
+}
