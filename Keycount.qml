@@ -16,7 +16,6 @@ Item {
   property double startedAt: 0
   property double speed: 0
   property string configPath: Quickshell.env("HOME") + "/.config/omarchy/keycount.json"
-  property string statePath: Quickshell.env("HOME") + "/.config/omarchy/keycount-state.json"
   property string setupScript: Qt.resolvedUrl("keycount_setup.py").toString().replace("file://", "")
   property bool opened: false
   property bool configLoaded: false
@@ -28,7 +27,9 @@ Item {
 
   function loadConfig(raw) {
     try {
-      var configured = String(JSON.parse(String(raw || "{}")).position || "top-center")
+      var config = JSON.parse(String(raw || "{}"))
+      state = Model.readState(JSON.stringify(config))
+      var configured = String(config.position || "")
       if (!Model.isPosition(configured)) return
       placement = configured
       configLoaded = true
@@ -37,8 +38,13 @@ Item {
     catch (error) {}
   }
 
-  function saveState() {
-    stateFile.setText(JSON.stringify(state) + "\n")
+  function saveConfig() {
+    configFile.setText(JSON.stringify({
+      position: placement,
+      bestSpeed: state.bestSpeed,
+      bestDate: state.bestDate,
+      streak: state.streak
+    }) + "\n")
   }
 
   function registerKey() {
@@ -49,7 +55,7 @@ Item {
     if (speed > state.bestSpeed) {
       var result = Model.recordRun(state, speed, new Date().toISOString().slice(0, 10))
       state = result.state
-      saveState()
+      saveConfig()
     }
   }
 
@@ -76,7 +82,6 @@ Item {
     onLoaded: root.loadConfig(text())
     onFileChanged: reload()
   }
-  FileView { id: stateFile; path: root.statePath; onLoaded: root.state = Model.readState(text()) }
 
   Process {
     id: bindingInstaller

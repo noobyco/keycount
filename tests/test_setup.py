@@ -34,6 +34,20 @@ class SetupTests(unittest.TestCase):
             config = home / ".config" / "omarchy" / "keycount.json"
             self.assertEqual(json.loads(config.read_text(encoding="utf-8"))["position"], "bottom-left-edge")
 
+    def test_placement_preserves_unified_state(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            home = Path(temporary)
+            config = home / ".config" / "omarchy" / "keycount.json"
+            config.parent.mkdir(parents=True)
+            config.write_text(json.dumps({"bestSpeed": 72, "bestDate": "2026-11-03", "streak": 2}), encoding="utf-8")
+            self.assertEqual(self.run_setup(home, "--placement", "top-right-edge").returncode, 0)
+            self.assertEqual(json.loads(config.read_text(encoding="utf-8")), {
+                "bestSpeed": 72,
+                "bestDate": "2026-11-03",
+                "streak": 2,
+                "position": "top-right-edge",
+            })
+
     def test_binding_can_be_removed_without_touching_other_lines(self):
         with tempfile.TemporaryDirectory() as temporary:
             home = Path(temporary)
