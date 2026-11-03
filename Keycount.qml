@@ -12,10 +12,10 @@ Item {
 
   property var state: Model.emptyState()
   property string placement: "top-center"
-  property int keyCount: 0
-  property double startedAt: 0
+  property var run: Model.emptyRun()
   property double speed: 0
   property string configPath: Quickshell.env("HOME") + "/.config/omarchy/keycount.json"
+  property string eventPath: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/keycount-events.json"
   property string setupScript: Qt.resolvedUrl("keycount_setup.py").toString().replace("file://", "")
   property bool opened: false
   property bool configLoaded: false
@@ -47,26 +47,47 @@ Item {
     }) + "\n")
   }
 
-  function registerKey() {
-    var now = Date.now()
-    if (!startedAt || now - startedAt > 2000) { startedAt = now; keyCount = 0 }
-    keyCount += 1
-    speed = Model.speedFor(keyCount, now - startedAt)
-    if (speed > state.bestSpeed) {
+  function refreshSpeed(now) {
+    speed = Model.liveSpeed(run, now)
+  }
+
+  function considerBest(now) {
+    var words = Model.wordCount(run.text)
+    var elapsed = run.startedAt ? now - run.startedAt : 0
+    if (Model.qualifies(words, elapsed) && speed > state.bestSpeed) {
       var result = Model.recordRun(state, speed, new Date().toISOString().slice(0, 10))
       state = result.state
       saveConfig()
     }
   }
 
-  function toggle() { opened = !opened }
+  function loadTyping(raw) {
+    try {
+      var payload = JSON.parse(String(raw || "{}"))
+      if (!Array.isArray(payload.ev)) return
+      var now = Date.now()
+      run = Model.noteText(run, Model.textFromEvents(payload.ev), now, Number(payload.gen) || 0)
+      refreshSpeed(now)
+      considerBest(now)
+    }
+    catch (error) {}
+  }
 
-  function open(payloadJson) { opened = true }
+  function toggle() {
+    opened = !opened
+    if (opened) refreshSpeed(Date.now())
+  }
+
+
+
+  function open(payloadJson) { opened = true; refreshSpeed(Date.now()) }
   function close() { opened = false }
 
   function formattedBestDate() {
     if (!state.bestDate) return ""
-    return Qt.formatDate(new Date(state.bestDate + "T00:00:00"), "d MMM yyyy", Qt.locale(Commons.I18n.formatLocale))
+    var date = new Date(state.bestDate + "T00:00:00")
+    if (isNaN(date.getTime())) return ""
+    return date.toLocaleDateString(Qt.locale(Commons.I18n.formatLocale), "d MMM yyyy")
   }
 
   function savePlacement() {
@@ -83,10 +104,40 @@ Item {
     onFileChanged: reload()
   }
 
+  FileView {
+    id: eventFile
+    path: root.eventPath
+    watchChanges: true
+    onLoaded: root.loadTyping(text())
+    onFileChanged: reload()
+  }
+
   Process {
     id: bindingInstaller
     running: true
     command: ["python3", root.setupScript, "--ensure-binding"]
+  }
+
+  Process {
+    id: bridgeInstaller
+    running: true
+    command: ["python3", root.setupScript, "--ensure-hyprland-bridge"]
+    stdout: SplitParser {
+      onRead: function(line) {
+        if (String(line).trim() === "changed") bridgeReloader.running = true
+      }
+    }
+    stderr: SplitParser {
+      onRead: function(line) { console.warn("keycount:", line) }
+    }
+    onExited: function(exitCode) {
+      if (exitCode !== 0) console.warn("keycount bridge install failed:", exitCode)
+    }
+  }
+
+  Process {
+    id: bridgeReloader
+    command: ["hyprctl", "reload"]
   }
 
   Process {
@@ -108,23 +159,15 @@ Item {
     onTriggered: if (!root.configLoaded) root.setupOpen = true
   }
 
-  Component.onCompleted: {
-    firstRunTimer.start()
+  Timer {
+    interval: 200
+    repeat: true
+    running: root.opened
+    onTriggered: root.refreshSpeed(Date.now())
   }
 
-  Process {
-    id: input
-    running: true
-    command: ["python3", Qt.resolvedUrl("keycount_input.py").toString().replace("file://", "")]
-    stdout: SplitParser {
-      onRead: function(line) {
-        try {
-          var event = JSON.parse(line)
-          if (event.toggle) root.toggle()
-          root.registerKey()
-        } catch (error) {}
-      }
-    }
+  Component.onCompleted: {
+    firstRunTimer.start()
   }
 
   PanelWindow {

@@ -78,6 +78,27 @@ class SetupTests(unittest.TestCase):
             self.assertNotIn("io.github.noobyco.keycount plugin binding", content)
             self.assertIn('o.bind("SUPER + X", "Other", "other")', content)
 
+    def test_hyprland_bridge_is_added_once_and_can_be_removed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            home = Path(temporary)
+            config = home / ".config" / "hypr" / "hyprland.lua"
+            config.parent.mkdir(parents=True)
+            config.write_text('require("hypr.bindings")\n', encoding="utf-8")
+            first = self.run_setup(home, "--ensure-hyprland-bridge")
+            second = self.run_setup(home, "--ensure-hyprland-bridge")
+            self.assertEqual(first.returncode, 0)
+            self.assertEqual(second.returncode, 0)
+            self.assertIn("changed", first.stdout)
+            self.assertIn("unchanged", second.stdout)
+            content = config.read_text(encoding="utf-8")
+            self.assertEqual(content.count("-- Keycount event bridge"), 1)
+            self.assertIn('require("hypr.keycount")', content)
+            bridge = home / ".config" / "hypr" / "keycount.lua"
+            self.assertIn('hl.on("input.keyboard.key"', bridge.read_text(encoding="utf-8"))
+            self.assertEqual(self.run_setup(home, "--remove-hyprland-bridge").returncode, 0)
+            self.assertNotIn("Keycount event bridge", config.read_text(encoding="utf-8"))
+            self.assertFalse(bridge.exists())
+
 
 if __name__ == "__main__":
     unittest.main()
