@@ -80,6 +80,7 @@ Item {
 
   Process {
     id: bindingInstaller
+    running: true
     command: ["python3", root.setupScript, "--ensure-binding"]
   }
 
@@ -103,7 +104,6 @@ Item {
   }
 
   Component.onCompleted: {
-    bindingInstaller.running = true
     firstRunTimer.start()
   }
 
