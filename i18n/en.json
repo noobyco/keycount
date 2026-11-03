@@ -4,6 +4,7 @@
   "noBest": "No personal best yet",
   "setup.title": "Place Keycount",
   "setup.body": "Choose where the typing-speed overlay should appear. Top Center is the default.",
+  "layout.change": "Change layout",
   "setup.save": "Save placement",
   "setup.saveFailed": "Could not save your placement. Try again.",
   "placement.topCenter": "Top Center",

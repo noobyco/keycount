@@ -20,6 +20,7 @@ Item {
   property bool opened: false
   property bool configLoaded: false
   property bool setupOpen: false
+  property bool layoutMenuOpen: false
   property string setupError: ""
   property var positionChoices: Model.positionOptions()
 
@@ -75,13 +76,20 @@ Item {
 
   function toggle() {
     opened = !opened
+    if (!opened) layoutMenuOpen = false
     if (opened) refreshSpeed(Date.now())
   }
 
 
 
   function open(payloadJson) { opened = true; refreshSpeed(Date.now()) }
-  function close() { opened = false }
+  function close() { opened = false; layoutMenuOpen = false }
+
+  function choosePlacement(value) {
+    placement = value
+    layoutMenuOpen = false
+    savePlacement()
+  }
 
   function formattedBestDate() {
     if (!state.bestDate) return ""
@@ -179,34 +187,88 @@ Item {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: root.setupOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-    mask: Region { item: root.setupOpen ? setupCard : null }
+    mask: Region { item: root.setupOpen ? setupCard : (root.opened ? card : null) }
 
     Rectangle {
       id: card
       visible: root.opened && !root.setupOpen
-      width: content.implicitWidth + Style.space(32)
-      height: Style.space(76)
-      anchors.horizontalCenter: Model.position(root.placement).horizontal === "center" ? parent.horizontalCenter : undefined
-      anchors.left: Model.position(root.placement).horizontal === "left" ? parent.left : undefined
-      anchors.right: Model.position(root.placement).horizontal === "right" ? parent.right : undefined
-      anchors.top: Model.position(root.placement).vertical === "top" ? parent.top : undefined
-      anchors.verticalCenter: Model.position(root.placement).vertical === "center" ? parent.verticalCenter : undefined
-      anchors.bottom: Model.position(root.placement).vertical === "bottom" ? parent.bottom : undefined
-      anchors.margins: Style.space(24)
+      width: (root.layoutMenuOpen ? Style.space(420) : speedRow.implicitWidth) + Style.space(32)
+      height: content.implicitHeight + Style.space(24)
+      x: {
+        var edge = Style.space(24)
+        var horizontal = Model.position(root.placement).horizontal
+        if (horizontal === "left") return edge
+        if (horizontal === "right") return Math.max(edge, parent.width - width - edge)
+        return Math.max(0, (parent.width - width) / 2)
+      }
+      y: {
+        var edge = Style.space(24)
+        var vertical = Model.position(root.placement).vertical
+        if (vertical === "top") return edge
+        if (vertical === "bottom") return Math.max(edge, parent.height - height - edge)
+        return Math.max(0, (parent.height - height) / 2)
+      }
       radius: Style.cornerRadius
       color: Util.alpha(Commons.Color.popups.background, 0.96)
       border.color: Commons.Color.popups.border
       border.width: Style.space(1)
 
-      Row {
+      Column {
         id: content
+        width: parent.width - Style.space(32)
         anchors.centerIn: parent
-        spacing: Style.space(18)
-        Text { textFormat: Text.PlainText; text: Commons.I18n.formatNumber(Math.round(root.speed)) + " WPM"; color: Commons.Color.popups.text; font.pixelSize: Style.font.title; font.bold: true }
-        Column {
-          spacing: Style.space(2)
-          Text { textFormat: Text.PlainText; text: strings.t("best").arg(Commons.I18n.formatNumber(Math.round(root.state.bestSpeed))); color: Commons.Color.popups.text; font.pixelSize: Style.font.caption; font.bold: true }
-          Text { textFormat: Text.PlainText; text: root.state.bestDate ? strings.t("bestDateStreak").arg(root.formattedBestDate()).arg(Commons.I18n.formatNumber(root.state.streak)) : strings.t("noBest"); color: Commons.Color.popups.text; opacity: 0.72; font.pixelSize: Style.font.caption }
+        spacing: Style.space(10)
+
+        Button {
+          width: parent.width
+          text: strings.t("layout.change")
+          bordered: true
+          fontSize: Style.font.caption
+          selected: root.layoutMenuOpen
+          onClicked: root.layoutMenuOpen = !root.layoutMenuOpen
+        }
+
+        Grid {
+          id: layoutMenu
+          visible: root.layoutMenuOpen
+          columns: 3
+          width: parent.width
+          spacing: Style.space(8)
+
+          Repeater {
+            model: root.positionChoices
+            delegate: Button {
+              required property var modelData
+              width: (parent.width - parent.spacing * 2) / 3
+              text: strings.t(modelData.label)
+              selected: root.placement === modelData.value
+              bordered: true
+              fontSize: Style.font.caption
+              onClicked: root.choosePlacement(modelData.value)
+            }
+          }
+        }
+
+        Text {
+          textFormat: Text.PlainText
+          visible: root.layoutMenuOpen && root.setupError !== ""
+          width: parent.width
+          text: root.setupError
+          color: Commons.Color.urgent
+          wrapMode: Text.WordWrap
+          font.pixelSize: Style.font.caption
+        }
+
+        Row {
+          id: speedRow
+          anchors.horizontalCenter: parent.horizontalCenter
+          spacing: Style.space(18)
+          Text { textFormat: Text.PlainText; text: Commons.I18n.formatNumber(Math.round(root.speed)) + " WPM"; color: Commons.Color.popups.text; font.pixelSize: Style.font.title; font.bold: true }
+          Column {
+            spacing: Style.space(2)
+            Text { textFormat: Text.PlainText; text: strings.t("best").arg(Commons.I18n.formatNumber(Math.round(root.state.bestSpeed))); color: Commons.Color.popups.text; font.pixelSize: Style.font.caption; font.bold: true }
+            Text { textFormat: Text.PlainText; text: root.state.bestDate ? strings.t("bestDateStreak").arg(root.formattedBestDate()).arg(Commons.I18n.formatNumber(root.state.streak)) : strings.t("noBest"); color: Commons.Color.popups.text; opacity: 0.72; font.pixelSize: Style.font.caption }
+          }
         }
       }
     }

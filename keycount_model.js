@@ -150,15 +150,15 @@ function isPosition(name) {
 
 function positionOptions() {
   return [
-    { value: "top-center", label: "placement.topCenter" },
-    { value: "center", label: "placement.center" },
-    { value: "left-center", label: "placement.leftCenter" },
-    { value: "right-center", label: "placement.rightCenter" },
-    { value: "bottom-center", label: "placement.bottomCenter" },
-    { value: "top-right-edge", label: "placement.topRight" },
     { value: "top-left-edge", label: "placement.topLeft" },
-    { value: "bottom-right-edge", label: "placement.bottomRight" },
-    { value: "bottom-left-edge", label: "placement.bottomLeft" }
+    { value: "top-center", label: "placement.topCenter" },
+    { value: "top-right-edge", label: "placement.topRight" },
+    { value: "left-center", label: "placement.leftCenter" },
+    { value: "center", label: "placement.center" },
+    { value: "right-center", label: "placement.rightCenter" },
+    { value: "bottom-left-edge", label: "placement.bottomLeft" },
+    { value: "bottom-center", label: "placement.bottomCenter" },
+    { value: "bottom-right-edge", label: "placement.bottomRight" }
   ]
 }
 
