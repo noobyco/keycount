@@ -20,7 +20,7 @@ sudo usermod -aG input "$USER"
 
 It adds the current user to Linux's `input` group, granting access to raw keyboard press events from `/dev/input/by-path/*-event-kbd`. That access is required to measure typing speed across applications. The `input` group can read keyboard events, so run it only if you trust Keycount. Keycount records only press timing and count; it does not save or transmit typed text. Log out and sign in again, or reboot, before opening Keycount—new group membership applies only to a new login session.
 
-When the plugin first starts, it adds the following tagged entry to `~/.config/hypr/bindings.lua` if it is not already present:
+During installation, Omarchy adds and reloads the following shortcut in `~/.config/hypr/bindings.lua` if no equivalent Keycount panel binding already exists:
 
 ```lua
 o.bind("SUPER + SHIFT + K", "Toggle Keycount", {
@@ -28,7 +28,7 @@ o.bind("SUPER + SHIFT + K", "Toggle Keycount", {
 })
 ```
 
-The installer never rewrites or removes unrelated keybindings. The binding is detected by plugin ID, so a manually-created equivalent binding is not duplicated.
+The installer never executes plugin code, rewrites unrelated keybindings, or duplicates a manually-created equivalent binding.
 
 ## Placement
 
