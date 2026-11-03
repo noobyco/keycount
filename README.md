@@ -12,7 +12,13 @@ Install the public repository with Omarchy.
 omarchy plugin add https://github.com/noobyco/keycount.git --enable
 ```
 
-The helper reads keyboard press events from `/dev/input/by-path/*-event-kbd`. The user running Omarchy must have read access to those devices, usually through the `input` group. This is the plugin's only privileged boundary. It does not send, store, or transmit key content. It records only press timing and count.
+During installation, Omarchy displays the manual setup required for typing measurement. It does not run the command automatically. The command is:
+
+```sh
+sudo usermod -aG input "$USER"
+```
+
+It adds the current user to Linux's `input` group, granting access to raw keyboard press events from `/dev/input/by-path/*-event-kbd`. That access is required to measure typing speed across applications. The `input` group can read keyboard events, so run it only if you trust Keycount. Keycount records only press timing and count; it does not save or transmit typed text. Log out and sign in again, or reboot, before opening Keycount—new group membership applies only to a new login session.
 
 When the plugin first starts, it adds the following tagged entry to `~/.config/hypr/bindings.lua` if it is not already present:
 
